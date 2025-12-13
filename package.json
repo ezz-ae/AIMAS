@@ -1,0 +1,13 @@
+{
+  "name": "aimas-firebase-cloudrun-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm --prefix apps/api run dev",
+    "dev:site": "npm --prefix apps/site run dev",
+    "build:site": "npm --prefix apps/site run export"
+  }
+}

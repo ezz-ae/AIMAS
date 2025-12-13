@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Force Note",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "note_id",
+    "actor_id",
+    "type",
+    "created_at",
+    "lineage_hash"
+  ],
+  "properties": {
+    "note_id": {
+      "type": "string"
+    },
+    "actor_id": {
+      "type": "string"
+    },
+    "intent_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "want",
+        "cycle",
+        "skip",
+        "signal",
+        "re-effective"
+      ]
+    },
+    "payload": {
+      "type": "object"
+    },
+    "supersedes": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lineage_hash": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

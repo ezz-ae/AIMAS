@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Was Feedback",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "was_id",
+    "intent_id",
+    "actor_id",
+    "confidence_delta",
+    "created_at"
+  ],
+  "properties": {
+    "was_id": {
+      "type": "string"
+    },
+    "intent_id": {
+      "type": "string"
+    },
+    "actor_id": {
+      "type": "string"
+    },
+    "explicit": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "implicit": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "confidence_delta": {
+      "type": "number"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

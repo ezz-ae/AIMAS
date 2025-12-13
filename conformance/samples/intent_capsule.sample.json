@@ -1,0 +1,18 @@
+{
+  "intent_id": "demo-intent-001",
+  "actor_id": "actor_demo_anon",
+  "domain": "commerce",
+  "mode": "plan",
+  "captured_at": "2025-12-13T00:00:00Z",
+  "intent_features": {
+    "category": "buy_laptop",
+    "constraints": [
+      {
+        "budget": "1000-1500"
+      }
+    ],
+    "sensitivity": "low",
+    "time_constraint": "within_7_days"
+  },
+  "raw_payload_ref": null
+}
