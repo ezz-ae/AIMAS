@@ -1,0 +1,17 @@
+{
+  "intent_id": "123e4567-e89b-12d3-a456-426614174001",
+  "actor_id": "nyk_opaque_9f3a",
+  "domain": "services",
+  "mode": "active",
+  "captured_at": "2025-12-13T12:00:00Z",
+  "intent_text": "I need a mechanic near me ASAP",
+  "intent_features": {
+    "category": "car_repair",
+    "constraints": [],
+    "time_horizon": "now"
+  },
+  "raw_payload_ref": null,
+  "raw_payload_ttl_seconds": null,
+  "sensitivity": "medium",
+  "urgency": "active"
+}

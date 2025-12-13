@@ -1,13 +1,8 @@
-FROM node:20-alpine AS deps
-WORKDIR /app
-COPY package.json package-lock.json* ./
-RUN npm i --omit=dev
-
 FROM node:20-alpine
 WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-RUN npm run build
+COPY package.json ./
+RUN npm i --omit=dev
+COPY src ./src
+ENV PORT=8080
 EXPOSE 8080
-CMD ["node", "dist/index.js"]
+CMD ["node","src/server.js"]

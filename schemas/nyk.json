@@ -1,32 +1,3 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "NYK Identity",
-  "type": "object",
-  "additionalProperties": false,
-  "required": [
-    "nyk_id",
-    "actor_id",
-    "version",
-    "traits"
-  ],
-  "properties": {
-    "nyk_id": {
-      "type": "string"
-    },
-    "actor_id": {
-      "type": "string"
-    },
-    "version": {
-      "type": "integer",
-      "minimum": 1
-    },
-    "active_from": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "traits": {
-      "type": "object",
-      "additionalProperties": true
-    }
-  }
+  "note": "Identity organ schema"
 }

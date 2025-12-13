@@ -1,0 +1,20 @@
+binding_rfc: RFC-0007-FCT-HMR-BINDING.md
+rules:
+  - id: no_raw_intent_persistence
+    description: Canonical Intent Capsule must not include raw intent text/transcripts.
+    target: schemas/intent_capsule.json
+    asserts:
+      - forbidden_fields: ["intent_text", "transcript", "raw_text", "raw_payload"]
+  - id: fit_matrix_primary_unit
+    description: Fit Matrix schema must exist and be multi-value.
+    target: schemas/fit_matrix.json
+  - id: fairness_free_baseline
+    description: Fit Matrix paths must include at least one free_baseline.
+    target: schemas/fit_matrix.json
+    asserts:
+      - requires_path_type: "free_baseline"
+  - id: was_private
+    description: Was feedback must exist and be designated private (no public fields like stars).
+    target: schemas/was_feedback.json
+    asserts:
+      - forbidden_fields: ["stars", "public_rating", "review_text"]

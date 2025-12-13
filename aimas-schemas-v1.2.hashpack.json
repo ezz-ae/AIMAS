@@ -1,0 +1,7 @@
+{
+  "intent_capsule.json": "sha256:5074ef43600097cccfc1460e9c0da1f99e5869f4590e3fe7ff2b32da55acedb8",
+  "fit_matrix.json": "sha256:33bb5b551802cebcb0d55307e69d44a5d6f73c5c236188941352151b3971e1aa",
+  "nyk.json": "sha256:7addacf3c0910b9a6f674c1de6faabb527372897603e11b6ec28adcc7f118704",
+  "force_note.json": "sha256:e24558ee8895c21a9c697613d91d958185b37b867adf6bd3d8dbc6890330e433",
+  "was_feedback.json": "sha256:d6bd79c7b7bb03cd514d7082116d43356d64ccc9f755b8d81e7086c00c9b8b16"
+}

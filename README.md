@@ -1,87 +1,106 @@
-# AIMAS — Firebase Hosting (Site) + Cloud Run (API)
+# AIMAS Protocol
 
-This repository is a **starter build** for deploying:
-- **Protocol Website** on **Firebase Hosting** (static Next.js export)
-- **AIMAS Core API** on **Google Cloud Run** (Node.js/TypeScript)
+**AI Intent Monetization System — Fulfillment Certainty Standard**
 
-It is intentionally **spec-first** and **LLM-optional**:
-- The API computes and returns a **Fit Matrix** (no ranked recommendations).
-- Enforced constraints:
-  - **Fairness Gate:** at least one `free_baseline` path must exist.
-  - **Zero-raw gate:** rejects archival fields like `intent_text` / transcripts.
-  - **Append-only Force Notes:** no destructive updates (starter uses an in-memory store; swap later).
+**Status:** Canonical Specification  
+**Current tag:** v1.0.1 (patch release)  
+**Maintainer / Author:** Mahmoud Ezz  
+**Scope:** Protocol · Data Contracts · Conformance · Governance · Reference API + Website Scaffolding
 
 ---
 
-## Repo layout
+## Executive Summary
 
-- `apps/site/` — Protocol site (Next.js static export) with **search-only** homepage.
-- `apps/api/` — AIMAS API (Express) ready for Cloud Run.
-- `schemas/` — Canonical JSON Schemas used by API validators.
-- `RFC/` — RFC documents (drop in your canonical set here).
-- `conformance/` — Sample vectors + validator notes.
-- `adapters/wordpress/` — WordPress plugin skeleton (shortcode: `[aimas_search]`).
-- `packages/sdk/` — Node SDK stub (types + client).
+AIMAS is a protocol-level standard for transforming human intent into deterministic, monetizable certainty.
 
----
+Unlike marketplaces, search engines, or recommender systems, AIMAS does **not** rank options or sell visibility.
+It computes resolution paths using a fitting model and monetizes:
 
-## 1) Prereqs
+- **Time compression (ETA)**
+- **Success probability**
+- **Confidence and handling guarantees**
+- **Sensitivity-aware routing**
 
-- Node.js 20+
-- Firebase CLI (`npm i -g firebase-tools`)
-- gcloud CLI
+The output of AIMAS is **not a list** — it is a **Fit Matrix**.
 
 ---
 
-## 2) Local dev
+## What’s in this repository
 
-### API
-```bash
-cd apps/api
-npm i
-npm run dev
-# API: http://localhost:8080
-```
+This repo is **specification-first**. It defines what must be true, then provides enough scaffolding to ship:
 
-### Site
-```bash
-cd apps/site
-npm i
-npm run dev
-# Site: http://localhost:3000
-```
-
-Set the site to call your API:
-- `apps/site/.env.local` → `NEXT_PUBLIC_AIMAS_API_BASE=http://localhost:8080`
+- **RFCs**: the canonical protocol (RFC-0001..RFC-0007)
+- **Schemas**: JSON data contracts (Intent Capsule, Fit Matrix, NYK, Force Notes, Was)
+- **Compliance + conformance**: forbidden patterns, violation examples, conformance rules
+- **Governance**: change control and integrity rules
+- **Reference builds (minimal, optional)**:
+  - `apps/api` — a deterministic API skeleton (Cloud Run-ready)
+  - `apps/site` — a docs website scaffold with a **search-only** home terminal
 
 ---
 
-## 3) Deploy API to Cloud Run
+## The AIMAS non-negotiables
 
-```bash
-gcloud auth login
-gcloud config set project YOUR_PROJECT_ID
-gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com
-
-cd apps/api
-gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/aimas-api
-gcloud run deploy aimas-api   --image gcr.io/YOUR_PROJECT_ID/aimas-api   --region us-central1   --allow-unauthenticated   --set-env-vars AIMAS_ALLOW_CORS=1
-```
+- **Fit Matrix is the primary response unit** (no “ranked results as truth”).
+- **Free Baseline Path is mandatory** for every intent (Fairness Rule).
+- **No surveillance monetization** (no selling visibility, no tracking-for-ads).
+- **No raw intent archival** (store derived features; raw payload is transient by design).
+- **Auditability** through append-only lineage (re-effective supersession, never deletion).
 
 ---
 
-## 4) Deploy Site to Firebase Hosting
+## Repository map
+
+- `/RFC` — canonical specifications
+- `/schemas` — JSON schemas (machine contracts)
+- `/compliance` — forbidden patterns + violation handling
+- `/conformance` — conformance requirements + fixtures
+- `/docs` — institutional context, terminology, and adoption notes
+- `/math` — formal equations / constraints
+- `/apps/site` — protocol website scaffold (Next.js)
+- `/apps/api` — reference API scaffold (Node/TS, deterministic core)
+
+---
+
+## Quickstart (website)
 
 ```bash
 cd apps/site
-echo "NEXT_PUBLIC_AIMAS_API_BASE=https://YOUR_CLOUD_RUN_URL" > .env.production
 npm i
+npm run dev
+# optional static export:
 npm run export
-
-cd ../../
-firebase login
-firebase use --add
-firebase deploy --only hosting
 ```
+
+The home page is intentionally a **single search terminal**. Every visitor enters the protocol through intent.
+
+---
+
+## Quickstart (API)
+
+```bash
+cd apps/api
+npm i
+npm run dev
+# Cloud Run build:
+docker build -t aim
+docker run -p 8080:8080 aim
+```
+
+This API is deterministic by default. Optional AI adapters are isolated and disabled unless explicitly enabled.
+
+---
+
+## Authorship & Copyright
 
 © 2025 Mahmoud Ezz. All rights reserved.
+
+This repository defines a canonical protocol specification. Implementations must conform to the published RFCs and schemas.
+
+---
+
+## Closing statement
+
+AIMAS does not optimize for engagement. It optimizes for **resolution**.  
+AIMAS does not predict behavior. It computes **certainty**.  
+AIMAS does not remember everything. It remembers only what is **safe to remember**.

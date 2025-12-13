@@ -1,0 +1,10 @@
+AIMAS PROTOCOL — CANONICAL ATTESTATION
+
+Protocol Name: AI Intent Monetization System (AIMAS)
+Version: v1.2 (Canonical)
+Status: Final / Binding
+
+Declared By:
+Mahmoud Ezz
+
+Date: 2025-12-13

@@ -1,75 +1,60 @@
-"use client";
-import { useState } from "react";
+import Link from "next/link";
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [out, setOut] = useState<any>(null);
-  const [err, setErr] = useState<string | null>(null);
-
-  const API_BASE = process.env.NEXT_PUBLIC_AIMAS_API_BASE || "";
-
-  async function run() {
-    setErr(null); setOut(null); setLoading(true);
-    try {
-      if (!API_BASE) throw new Error("Missing NEXT_PUBLIC_AIMAS_API_BASE");
-
-      const capsule = {
-        actor_id: "anon",
-        domain: "other",
-        mode: "plan",
-        captured_at: new Date().toISOString(),
-        intent_features: { category: "unknown", constraints: [], sensitivity: "medium", time_constraint: "unspecified" },
-        raw_payload_ref: null
-      };
-
-      const r1 = await fetch(`${API_BASE}/v1/intent`, { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(capsule) });
-      const j1 = await r1.json();
-      if (!r1.ok) throw new Error(j1?.error || "Intent create failed");
-
-      const r2 = await fetch(`${API_BASE}/v1/fit/${j1.intent_id}`, { method: "POST" });
-      const j2 = await r2.json();
-      if (!r2.ok) throw new Error(j2?.error || "Fit failed");
-
-      setOut(j2);
-    } catch (e: any) {
-      setErr(e?.message || "Error");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
-    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 24 }}>
-      <div style={{ width: "min(920px, 100%)" }}>
-        <div style={{ marginBottom: 18, opacity: 0.9 }}>
-          <div style={{ fontSize: 14, textTransform: "uppercase", opacity: 0.7 }}>AIMAS</div>
-          <div style={{ fontSize: 28, fontWeight: 700, marginTop: 6 }}>Protocol Terminal</div>
-          <div style={{ fontSize: 14, opacity: 0.75, marginTop: 8 }}>Search-only. Output is Fit Matrix + paths.</div>
+    <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, background: "#0b0b0f", color: "white" }}>
+      <div style={{ width: "min(860px, 100%)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 16 }}>
+          <h1 style={{ margin: 0, fontSize: 28, letterSpacing: -0.5 }}>AIMAS Protocol</h1>
+          <Link href="/docs/" style={{ color: "#9aa4ff", textDecoration: "none" }}>Browse docs →</Link>
         </div>
 
-        <button onClick={run} disabled={loading} style={{
-          borderRadius: 12,
-          border: "1px solid rgba(255,255,255,0.14)",
-          background: loading ? "#1a1b22" : "#ffffff",
-          color: loading ? "#aaa" : "#000",
-          padding: "10px 14px",
-          fontWeight: 700,
-          cursor: loading ? "not-allowed" : "pointer"
-        }}>
-          {loading ? "Computing…" : "Search"}
-        </button>
+        <p style={{ marginTop: 10, marginBottom: 22, opacity: 0.85, lineHeight: 1.6 }}>
+          Fulfillment Certainty Standard. No listings. No rankings. You start by expressing intent.
+        </p>
 
-        {err && <div style={{ marginTop: 14, color: "#ff7b7b", fontSize: 14 }}>{err}</div>}
+        <form action="/search/" method="get" style={{ display: "flex", gap: 10 }}>
+          <input
+            name="q"
+            placeholder="Enter your intent (e.g., “hire a surgeon for second opinion”, “buy a 4k camera”, “move to Dubai”)"
+            style={{
+              flex: 1,
+              padding: "14px 14px",
+              fontSize: 14,
+              borderRadius: 12,
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.06)",
+              color: "white",
+              outline: "none"
+            }}
+          />
+          <button
+            type="submit"
+            style={{
+              padding: "14px 16px",
+              fontSize: 14,
+              borderRadius: 12,
+              border: "1px solid rgba(255,255,255,0.12)",
+              background: "rgba(255,255,255,0.14)",
+              color: "white",
+              cursor: "pointer"
+            }}
+          >
+            Search
+          </button>
+        </form>
 
-        {out && (
-          <div style={{ marginTop: 18, background: "#0f1016", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: 16 }}>
-            <div style={{ fontWeight: 700, marginBottom: 8 }}>Fit Matrix</div>
-            <pre style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word", fontSize: 13, opacity: 0.9 }}>
-{JSON.stringify(out, null, 2)}
-            </pre>
-          </div>
-        )}
+        <div style={{ marginTop: 18, display: "flex", gap: 14, flexWrap: "wrap", opacity: 0.9 }}>
+          <Link href="/docs/rfc/" style={{ color: "white", textDecoration: "none", border: "1px solid rgba(255,255,255,0.12)", padding: "8px 10px", borderRadius: 999 }}>RFCs</Link>
+          <Link href="/docs/schemas/" style={{ color: "white", textDecoration: "none", border: "1px solid rgba(255,255,255,0.12)", padding: "8px 10px", borderRadius: 999 }}>Schemas</Link>
+          <Link href="/docs/conformance/" style={{ color: "white", textDecoration: "none", border: "1px solid rgba(255,255,255,0.12)", padding: "8px 10px", borderRadius: 999 }}>Conformance</Link>
+          <Link href="/docs/governance/" style={{ color: "white", textDecoration: "none", border: "1px solid rgba(255,255,255,0.12)", padding: "8px 10px", borderRadius: 999 }}>Governance</Link>
+        </div>
+
+        <p style={{ marginTop: 22, opacity: 0.65, fontSize: 12, lineHeight: 1.6 }}>
+          This site is intentionally minimal: a terminal + canonical documentation. Intelligence lives in the API, not the UI.
+        </p>
       </div>
-    </div>
+    </main>
   );
 }

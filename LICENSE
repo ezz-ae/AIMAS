@@ -1,5 +1,18 @@
 Copyright (c) 2025 Mahmoud Ezz
 All rights reserved.
 
-No license is granted to use, copy, modify, publish, distribute, sublicense, or sell
-without explicit written permission from the copyright holder.
+This repository contains proprietary specifications, protocols,
+schemas, and compliance definitions.
+
+No part of this work may be reproduced, modified, distributed,
+implemented, or used to create derivative works without
+explicit written permission from the copyright holder.
+
+This includes, but is not limited to:
+- Commercial use
+- Protocol implementation
+- SDK or runtime development
+- Derivative protocol standards
+- Forks claiming compatibility
+
+Permission requests must be made in writing.

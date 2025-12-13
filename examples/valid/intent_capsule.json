@@ -1,0 +1,32 @@
+{
+  "intent_id": "123e4567-e89b-12d3-a456-426614174000",
+  "actor_id": "nyk_opaque_9f3a",
+  "domain": "services",
+  "mode": "active",
+  "captured_at": "2025-12-13T12:00:00Z",
+  "intent_features": {
+    "category": "car_repair",
+    "constraints": [
+      {
+        "k": "city",
+        "v": "Dubai",
+        "weight": 0.9
+      },
+      {
+        "k": "time",
+        "v": "today",
+        "weight": 0.7
+      }
+    ],
+    "time_horizon": "now",
+    "budget": {
+      "min": 0,
+      "max": 600,
+      "currency": "AED"
+    }
+  },
+  "raw_payload_ref": null,
+  "raw_payload_ttl_seconds": null,
+  "sensitivity": "medium",
+  "urgency": "active"
+}
