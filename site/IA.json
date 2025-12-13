@@ -1,0 +1,54 @@
+{
+  "entry": {
+    "/": {
+      "mode": "search_only",
+      "redirect": "/terminal?q={q}"
+    }
+  },
+  "terminal": {
+    "/terminal/start": {
+      "title": "Start"
+    },
+    "/terminal/quickstart": {
+      "title": "Quickstart"
+    },
+    "/terminal/architecture": {
+      "title": "Architecture"
+    },
+    "/terminal/rfc": {
+      "children": [
+        "/terminal/rfc/0001",
+        "/terminal/rfc/0002",
+        "/terminal/rfc/0003",
+        "/terminal/rfc/0004",
+        "/terminal/rfc/0005",
+        "/terminal/rfc/0006",
+        "/terminal/rfc/0007"
+      ]
+    },
+    "/terminal/schemas": {
+      "children": [
+        "intent-capsule",
+        "fit-matrix",
+        "nyk",
+        "force-note",
+        "was-feedback"
+      ]
+    },
+    "/terminal/conformance": {
+      "children": [
+        "tests",
+        "attestation"
+      ]
+    },
+    "/terminal/compliance": {
+      "children": [
+        "examples"
+      ]
+    },
+    "/terminal/governance": {},
+    "/terminal/security": {},
+    "/terminal/changelog": {},
+    "/terminal/releases": {}
+  }
+}

@@ -1,0 +1,29 @@
+# Cloud Build: build & deploy to Cloud Run
+# Usage:
+# gcloud builds submit --config BUILDKIT/cloudrun/cloudbuild.yaml --substitutions _SERVICE=aimas-api,_REGION=us-central1,_PROJECT=myproj
+
+substitutions:
+  _SERVICE: "aimas-api"
+  _REGION: "us-central1"
+
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["build", "-f", "BUILDKIT/cloudrun/Dockerfile", "-t", "gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA", "."]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA"]
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: "gcloud"
+    args:
+      [
+        "run","deploy","${_SERVICE}",
+        "--image","gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA",
+        "--region","${_REGION}",
+        "--platform","managed",
+        "--allow-unauthenticated",
+        "--set-env-vars","AIMAS_COMMIT_SHA=$SHORT_SHA"
+      ]
+
+images:
+  - "gcr.io/$PROJECT_ID/${_SERVICE}:$SHORT_SHA"
