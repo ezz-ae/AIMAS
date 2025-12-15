@@ -15,6 +15,10 @@ You get:
 - `AIMAS_COMMIT_SHA` (short sha)
 - `AIMAS_ALLOW_CORS=1` (only if you need cross-origin access)
 - `CORS_ORIGIN` (origin allowed when `AIMAS_ALLOW_CORS=1`)
+- `AIMAS_SERVICE_TIER` (baseline/contract/sovereign)
+- `AIMAS_RATE_LIMIT` (e.g., 60)
+- `AIMAS_RATE_WINDOW` (seconds, e.g., 60)
+- `AIMAS_GATE_ID` (identifier used in audit payloads)
 
 ## Health + status endpoints
 - `GET /` → `{ service, protocol_version, commit }`

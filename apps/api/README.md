@@ -26,6 +26,11 @@ All ingesting endpoints call `assertNoRawArchival`, guaranteeing raw L0 declarat
 | `AIMAS_PROTOCOL_VERSION` | Tag/semantic version announced by `/v1/status` |
 | `AIMAS_COMMIT_SHA` | Short git SHA announced by `/v1/status` |
 | `AIMAS_ALLOW_CORS` | Set to `1` only when you need CORS (default off) |
+| `CORS_ORIGIN` | Comma-separated origins when CORS is enabled |
+| `AIMAS_SERVICE_TIER` | Free-form tier label returned in headers |
+| `AIMAS_RATE_LIMIT` | Requests allowed per window |
+| `AIMAS_RATE_WINDOW` | Window duration in seconds |
+| `AIMAS_GATE_ID` | Identifier for the deployed Fairness Gate |
 | `PORT` | Cloud Run injects this automatically |
 
 Optional: `CORS_ORIGIN` is documented in `cloudrun/README.md` as part of the deployment contract.

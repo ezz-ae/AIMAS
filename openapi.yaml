@@ -119,6 +119,19 @@ paths:
       responses:
         '201':
           description: Capsule accepted
+          headers:
+            X-AIMAS-Version:
+              $ref: '#/components/headers/X-AIMAS-Version'
+            X-AIMAS-Tier:
+              $ref: '#/components/headers/X-AIMAS-Tier'
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            X-AIMAS-Run-Id:
+              $ref: '#/components/headers/X-AIMAS-Run-Id'
           content:
             application/json:
               schema:
@@ -126,7 +139,9 @@ paths:
                 properties:
                   intent_id:
                     $ref: '#/components/schemas/IntentId'
-                required: [intent_id]
+                  audit:
+                    $ref: '#/components/schemas/AuditRecord'
+                required: [intent_id, audit]
         '400':
           $ref: '#/components/responses/BadRequest'
   /v1/fit/{intent_id}:
@@ -143,6 +158,19 @@ paths:
       responses:
         '200':
           description: Deterministic Fit Matrix
+          headers:
+            X-AIMAS-Version:
+              $ref: '#/components/headers/X-AIMAS-Version'
+            X-AIMAS-Tier:
+              $ref: '#/components/headers/X-AIMAS-Tier'
+            X-Rate-Limit-Limit:
+              $ref: '#/components/headers/X-Rate-Limit-Limit'
+            X-Rate-Limit-Remaining:
+              $ref: '#/components/headers/X-Rate-Limit-Remaining'
+            X-Rate-Limit-Reset:
+              $ref: '#/components/headers/X-Rate-Limit-Reset'
+            X-AIMAS-Run-Id:
+              $ref: '#/components/headers/X-AIMAS-Run-Id'
           content:
             application/json:
               schema:
@@ -277,6 +305,8 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/FitPath'
+        audit:
+          $ref: '#/components/schemas/AuditRecord'
     FitPath:
       type: object
       required: [path_id, type, eta_hours, success_probability, free_baseline, guarantees]
@@ -321,3 +351,41 @@ components:
         error:
           type: string
       required: [error]
+    AuditRecord:
+      type: object
+      properties:
+        protocol_version:
+          type: string
+        issued_at:
+          type: string
+          format: date-time
+        gate_id:
+          type: string
+        run_id:
+          type: string
+      required: [protocol_version, issued_at, gate_id]
+  headers:
+    X-AIMAS-Version:
+      description: Active protocol version
+      schema:
+        type: string
+    X-AIMAS-Tier:
+      description: Contract tier for the client request
+      schema:
+        type: string
+    X-Rate-Limit-Limit:
+      description: Maximum requests allowed in the window
+      schema:
+        type: integer
+    X-Rate-Limit-Remaining:
+      description: Requests left in the current window
+      schema:
+        type: integer
+    X-Rate-Limit-Reset:
+      description: Seconds until the rate-limit window resets
+      schema:
+        type: integer
+    X-AIMAS-Run-Id:
+      description: Audit token identifying the exact Fairness Gate execution
+      schema:
+        type: string

@@ -14,6 +14,10 @@ const PROTOCOL_VERSION = process.env.AIMAS_PROTOCOL_VERSION || "dev";
 const COMMIT_SHA = process.env.AIMAS_COMMIT_SHA || "local";
 const STARTED_AT = Date.now();
 const OPENAPI_PATH = path.resolve(process.cwd(), "..", "..", "openapi.yaml");
+const SERVICE_TIER = process.env.AIMAS_SERVICE_TIER || "baseline";
+const RATE_LIMIT = Number(process.env.AIMAS_RATE_LIMIT || "60");
+const RATE_WINDOW = Number(process.env.AIMAS_RATE_WINDOW || "60");
+const GATE_ID = process.env.AIMAS_GATE_ID || "aimas-gate-us-central";
 
 const app = express();
 app.use(express.json({ limit: "256kb" }));
@@ -23,6 +27,19 @@ if (ALLOW_CORS) {
   const allowed = CORS_ORIGIN ? CORS_ORIGIN.split(",").map((value) => value.trim()).filter(Boolean) : true;
   app.use(cors({ origin: allowed }));
 }
+
+app.use((_req, res, next) => {
+  const runId = uuidv4();
+  res.setHeader("X-AIMAS-Version", PROTOCOL_VERSION);
+  res.setHeader("X-AIMAS-Tier", SERVICE_TIER);
+  res.setHeader("X-Rate-Limit-Limit", String(RATE_LIMIT));
+  res.setHeader("X-Rate-Limit-Remaining", Math.max(0, RATE_LIMIT - 1).toString());
+  res.setHeader("X-Rate-Limit-Reset", RATE_WINDOW.toString());
+  res.setHeader("X-AIMAS-Run-Id", runId);
+  res.setHeader("Cache-Control", "no-store");
+  (res.locals as any).runId = runId;
+  next();
+});
 
 const intents = new Map<string, any>();
 
@@ -75,6 +92,7 @@ app.get("/v1/status", (_req, res) => {
     commit: COMMIT_SHA,
     started_at: new Date(STARTED_AT).toISOString(),
     uptime_seconds: uptimeSeconds,
+    service_tier: SERVICE_TIER,
   });
 });
 
@@ -106,7 +124,15 @@ app.post("/v1/intent", (req, res, next) => {
     if (!ok) return res.status(400).json({ error: "Intent schema validation failed", details: validateIntent.errors });
 
     intents.set(intent_id, capsule);
-    res.status(201).json({ intent_id });
+    res.status(201).json({
+      intent_id,
+      audit: {
+        protocol_version: PROTOCOL_VERSION,
+        issued_at: new Date().toISOString(),
+        gate_id: GATE_ID,
+        run_id: (res.locals as any).runId,
+      },
+    });
   } catch (e) {
     next(e);
   }
@@ -146,7 +172,13 @@ app.post("/v1/fit/:intent_id", (req, res, next) => {
           price: { amount: 19, currency: "USD" },
           guarantees: ["priority_routing", "verification_step"]
         }
-      ]
+      ],
+      audit: {
+        protocol_version: PROTOCOL_VERSION,
+        issued_at: new Date().toISOString(),
+        gate_id: GATE_ID,
+        run_id: (res.locals as any).runId,
+      },
     };
 
     const ok = validateFit(fm);
