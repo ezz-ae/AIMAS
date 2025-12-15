@@ -1,0 +1,323 @@
+openapi: 3.1.0
+info:
+  title: AIMAS Protocol API
+  version: 1.0.0
+  description: |
+    Deterministic interface that receives feature-only intent capsules, computes
+    Fit Matrices, and exposes minimal conformance helpers. No personalization,
+    no ranking, no persuasion.
+servers:
+  - url: https://aimas-api-936759581716.us-central1.run.app
+    description: Cloud Run deployment
+  - url: http://localhost:8080
+    description: Local development (apps/api)
+tags:
+  - name: Health
+    description: Liveness checks
+  - name: Metadata
+    description: Schema discovery
+  - name: Intent
+    description: Intake + evaluation flow
+  - name: Conformance
+    description: Deterministic validation helpers
+paths:
+  /:
+    get:
+      tags: [Health]
+      summary: Root status
+      responses:
+        '200':
+          description: Basic metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service:
+                    type: string
+                  protocol_version:
+                    type: string
+                  commit:
+                    type: string
+                required: [service, protocol_version]
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Health probe
+      responses:
+        '200':
+          description: Service is reachable
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                required: [ok]
+  /readyz:
+    get:
+      tags: [Health]
+      summary: Ready probe
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                required: [ok]
+  /livez:
+    get:
+      tags: [Health]
+      summary: Live probe
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                required: [ok]
+  /v1/schemas:
+    get:
+      tags: [Metadata]
+      summary: List available canonical schemas
+      responses:
+        '200':
+          description: Array of schema names in `/schemas`
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  schemas:
+                    type: array
+                    items:
+                      type: string
+                required: [schemas]
+  /v1/intent:
+    post:
+      tags: [Intent]
+      summary: Submit an intent capsule (dry input)
+      description: |
+        Accepts a feature-only L1 capsule. Raw declarations **must** be normalized
+        before hitting this endpoint. The API enforces zero raw archival and
+        assigns an opaque `intent_id`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntentCapsule'
+      responses:
+        '201':
+          description: Capsule accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  intent_id:
+                    $ref: '#/components/schemas/IntentId'
+                required: [intent_id]
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /v1/fit/{intent_id}:
+    post:
+      tags: [Intent]
+      summary: Compute a Fit Matrix for a submitted intent
+      parameters:
+        - name: intent_id
+          in: path
+          required: true
+          description: Value returned by `/v1/intent`
+          schema:
+            $ref: '#/components/schemas/IntentId'
+      responses:
+        '200':
+          description: Deterministic Fit Matrix
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FitMatrix'
+        '404':
+          description: Intent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/conformance/validate:
+    post:
+      tags: [Conformance]
+      summary: Validate payloads against canonical schemas
+      description: >-
+        Deterministic helper that runs Ajv with the official Intent Capsule or
+        Fit Matrix schema. Raw text payloads are rejected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [schema, payload]
+              properties:
+                schema:
+                  type: string
+                  enum:
+                    - intent_capsule.json
+                    - fit_matrix.json
+                payload:
+                  type: object
+                  description: Object to validate
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      description: Ajv error metadata
+                required: [ok, errors]
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /openapi.yaml:
+    get:
+      tags: [Metadata]
+      summary: Fetch the canonical OpenAPI document
+      responses:
+        '200':
+          description: YAML document
+          content:
+            application/yaml:
+              schema:
+                type: string
+components:
+  responses:
+    BadRequest:
+      description: Validation or fairness failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    IntentId:
+      type: string
+      format: uuid
+      description: Opaque intent identifier (append-only)
+    IntentCapsule:
+      type: object
+      description: L1 normalized capsule (no raw declarations)
+      required: [intent_features]
+      properties:
+        intent_id:
+          $ref: '#/components/schemas/IntentId'
+        actor_ref:
+          type: string
+          description: Optional opaque actor reference
+        intent_features:
+          type: object
+          required: [capsule_type, normalized_intent, sensitivity]
+          properties:
+            capsule_type:
+              type: string
+              enum: [transactional, advisory, verification]
+            normalized_intent:
+              type: string
+              description: Deterministic phrasing; never raw L0 text
+            sensitivity:
+              type: string
+              enum: [low, medium, high, critical]
+            derived_tags:
+              type: array
+              items:
+                type: string
+            context_vectors:
+              type: object
+              additionalProperties:
+                type: number
+        capsule_metadata:
+          type: object
+          description: Append-only metadata (timestamps, channel ids, etc.)
+          additionalProperties: true
+    FitMatrix:
+      type: object
+      required: [intent_id, eta_hours, success_probability, confidence_level, sensitivity_tag, paths]
+      properties:
+        intent_id:
+          $ref: '#/components/schemas/IntentId'
+        eta_hours:
+          type: integer
+          minimum: 0
+        success_probability:
+          type: integer
+          minimum: 0
+          maximum: 100
+        confidence_level:
+          type: string
+          enum: [low, medium, high]
+        sensitivity_tag:
+          type: string
+          enum: [low, medium, high, critical]
+        paths:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/FitPath'
+    FitPath:
+      type: object
+      required: [path_id, type, eta_hours, success_probability, free_baseline, guarantees]
+      properties:
+        path_id:
+          type: string
+        type:
+          type: string
+          enum: [free_baseline, paid_accelerator, governed_partner]
+        eta_hours:
+          type: integer
+          minimum: 0
+        success_probability:
+          type: integer
+          minimum: 0
+          maximum: 100
+        free_baseline:
+          type: boolean
+          description: At least one path **must** be true
+        price:
+          $ref: '#/components/schemas/Price'
+        guarantees:
+          type: array
+          items:
+            type: string
+          minItems: 1
+    Price:
+      type: object
+      nullable: true
+      required: [amount, currency]
+      properties:
+        amount:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]

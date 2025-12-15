@@ -9,12 +9,20 @@ import path from "node:path";
 
 const PORT = Number(process.env.PORT || 8080);
 const ALLOW_CORS = process.env.AIMAS_ALLOW_CORS === "1";
+const CORS_ORIGIN = process.env.CORS_ORIGIN;
+const PROTOCOL_VERSION = process.env.AIMAS_PROTOCOL_VERSION || "dev";
+const COMMIT_SHA = process.env.AIMAS_COMMIT_SHA || "local";
+const STARTED_AT = Date.now();
+const OPENAPI_PATH = path.resolve(process.cwd(), "..", "..", "openapi.yaml");
 
 const app = express();
 app.use(express.json({ limit: "256kb" }));
 app.use(helmet());
 app.use(morgan("combined"));
-if (ALLOW_CORS) app.use(cors());
+if (ALLOW_CORS) {
+  const allowed = CORS_ORIGIN ? CORS_ORIGIN.split(",").map((value) => value.trim()).filter(Boolean) : true;
+  app.use(cors({ origin: allowed }));
+}
 
 const intents = new Map<string, any>();
 
@@ -51,10 +59,39 @@ function assertFairness(fm: any) {
   }
 }
 
+app.get("/", (_req, res) => {
+  res.json({ service: "aimas-api", protocol_version: PROTOCOL_VERSION, commit: COMMIT_SHA });
+});
+
 app.get("/healthz", (_req, res) => res.json({ ok: true }));
+app.get("/readyz", (_req, res) => res.json({ ok: true }));
+app.get("/livez", (_req, res) => res.json({ ok: true }));
+
+app.get("/v1/status", (_req, res) => {
+  const uptimeSeconds = Math.floor((Date.now() - STARTED_AT) / 1000);
+  res.json({
+    ok: true,
+    protocol_version: PROTOCOL_VERSION,
+    commit: COMMIT_SHA,
+    started_at: new Date(STARTED_AT).toISOString(),
+    uptime_seconds: uptimeSeconds,
+  });
+});
 
 app.get("/v1/schemas", (_req, res) => {
   res.json({ schemas: ["intent_capsule.json", "fit_matrix.json", "nyk.json", "force_note.json", "was_feedback.json"] });
+});
+
+app.get(["/openapi.yaml", "/openapi.yml"], (_req, res, next) => {
+  try {
+    if (!fs.existsSync(OPENAPI_PATH)) {
+      return res.status(404).json({ error: "openapi spec missing" });
+    }
+    const body = fs.readFileSync(OPENAPI_PATH, "utf-8");
+    res.type("application/yaml").send(body);
+  } catch (err) {
+    next(err);
+  }
 });
 
 app.post("/v1/intent", (req, res, next) => {
@@ -139,4 +176,4 @@ app.use((err: any, _req: any, res: any, _next: any) => {
   res.status(err?.status || 500).json({ error: err?.message || "Internal error" });
 });
 
-app.listen(PORT, () => console.log(`AIMAS API listening on :${PORT}`));
+app.listen(PORT, () => console.log(`AIMAS API ${PROTOCOL_VERSION} (${COMMIT_SHA}) listening on :${PORT}`));

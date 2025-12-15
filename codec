@@ -1,0 +1,10 @@
+/codex
+  /tasks
+    001-docs-ingestion.md
+    002-health-endpoints.md
+    003-openapi-render.md
+  /rules
+    constitution.md
+    boundaries.md
+  /context
+    system.md
